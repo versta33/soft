@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAĞAZA | RTX SOFTWARE</title>
+    <style>
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-surface: rgba(18, 20, 24, 0.75);
+            --bg-surface-hover: rgba(22, 25, 30, 0.9);
+            --primary: #76b900;
+            --primary-hover: #8be500;
+            --text-main: #f0f0f5;
+            --text-muted: #8b92a5;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --glow: rgba(118, 185, 0, 0.3);
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-base); color: var(--text-main); overflow-x: hidden; position: relative;
+        }
+
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none; z-index: -1;
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%;
+            background: rgba(10, 10, 12, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 2px; color: #fff; }
+        .logo span { color: var(--primary); }
+        nav a { color: var(--text-muted); text-decoration: none; margin-left: 2rem; font-size: 0.95rem; font-weight: 500; transition: 0.2s; }
+        nav a:hover, nav a.active { color: var(--text-main); }
+
+        /* MAĞAZA (GAMES GRID) */
+        .store-container { padding: 4rem 5%; max-width: 1400px; margin: 0 auto; }
+        .section-title { font-size: 2.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 3rem; text-align: left; letter-spacing: 1px; }
+        .section-title span { color: var(--primary); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
+
+        .card {
+            background: var(--bg-surface); border: 1px solid var(--border-light);
+            border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative; cursor: pointer; display: flex; flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-6px); border-color: rgba(118, 185, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(118, 185, 0, 0.1); background: var(--bg-surface-hover);
+        }
+
+        .card-img-wrapper {
+            width: 100%; height: 200px; position: relative; overflow: hidden;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-img-blur {
+            position: absolute; top: -10%; left: -10%; width: 120%; height: 120%;
+            background-size: cover; background-position: center; filter: blur(15px);
+            opacity: 0.5; z-index: 0; transition: transform 0.5s ease;
+        }
+
+        .card-img {
+            width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img, .card:hover .card-img-blur { transform: scale(1.08); }
+
+        .card-img-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 50%; z-index: 2;
+            background: linear-gradient(to top, var(--bg-surface-hover), transparent);
+        }
+
+        .card-body { padding: 1.5rem 1.8rem 2rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .game-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5; flex-grow: 1; }
+
+        .btn-view {
+            align-self: flex-start; background: transparent; color: var(--text-main);
+            border: 1px solid var(--border-light); padding: 0.6rem 1.5rem; border-radius: 6px;
+            font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        .card:hover .btn-view { background: var(--primary); color: #000; border-color: var(--primary); }
+
+        /* HİLE DETAYLARI - SPA (KARE KART TASARIMI) */
+        #details-section { display: none; padding: 3rem 5%; max-width: 1400px; margin: 0 auto; }
+        
+        .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1.5rem; }
+        #detail-title { font-size: 2.5rem; font-weight: 800; text-transform: uppercase; color: #fff; }
+
+        .back-btn {
+            display: inline-flex; align-items: center; background: transparent; color: var(--text-muted); padding: 8px 16px;
+            border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+
+        #cheats-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+        }
+
+        .cheat-card-body {
+            padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; text-align: center;
+        }
+
+        .cheat-info h3 { font-size: 1.4rem; color: #fff; margin-bottom: 8px; font-weight: 700; }
+        .cheat-info p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; flex-grow: 1; }
+        
+        .cheat-price { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; display: block; color: var(--primary); }
+        
+        .btn-buy {
+            display: block; background: var(--primary); color: #000; padding: 0.8rem 1rem;
+            border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 0.5px; width: 100%;
+        }
+        .btn-buy:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(118, 185, 0, 0.3); }
+
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-light); margin-top: 4rem; background: rgba(10, 10, 12, 0.5); backdrop-filter: blur(10px); }
+        footer p { color: var(--text-muted); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">RTX<span>SOFTWARE</span></div>
+        <nav>
+            <a href="index.html">Ana Sayfa</a>
+            <a href="store.html" class="active" onclick="goBack(event)">Mağaza</a>
+            <span id="nav-user-area"></span>
+        </nav>
+    </header>
+    <script>
+        (function() {
+            const session = JSON.parse(localStorage.getItem('rtx_session') || 'null');
+            const area = document.getElementById('nav-user-area');
+            if (session) {
+                area.innerHTML = `<span style="color:var(--primary);font-weight:600;margin-left:2rem">👤 ${session.username}</span><a href="#" onclick="localStorage.removeItem('rtx_session');location.reload()" style="margin-left:1.2rem;color:var(--text-muted);font-size:0.85rem;">Çıkış</a>`;
+            } else {
+                area.innerHTML = '<a href="login.html" style="margin-left:2rem;background:var(--primary);color:#000;padding:0.4rem 1rem;border-radius:6px;font-weight:700;text-decoration:none;font-size:0.9rem;">Giriş Yap</a>';
+            }
+        })();
+    </script>
+
+    <div id="main-section" class="store-container">
+        <h2 class="section-title">OYUN <span>YAZILIMLARI</span></h2>
+        <div class="grid" id="game-grid">
+            <!-- Oyun kartları JS ile eklenecek -->
+        </div>
+    </div>
+
+    <!-- ALT SAYFA (HİLELER LİSTESİ) -->
+    <div id="details-section">
+        <div class="top-row">
+            <h2 id="detail-title">HİLELER</h2>
+            <button class="back-btn" onclick="goBack()">Geri Dön</button>
+        </div>
+        <div id="cheats-container">
+            <!-- Seçilen oyuna göre ürün kartları buraya düşecek -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 RTX Software. Tüm hakları saklıdır.</p>
+    </footer>
+
+    <script>
+        const gamesData = {
+            "valorant": {
+                title: "VALORANT", desc: "Vanguard sistemini tamamen atlatan özel Kernel seviyesi yazılımlar.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=VALORANT",
+                cheats: [
+                    { name: "Aimbot Lite (Humanized)", desc: "İzleyiciye veya Owerwatch sistemine kesinlikle belli etmeyen organik hedefleme modu.", price: "₺150", link: "#" },
+                    { name: "Full ESP (Wallhack)", desc: "Düşmanın sağlığını, silahını ve iskeletini duvar arkasından gösteren overlay.", price: "₺200", link: "#" },
+                    { name: "Vanguard Spoofer", desc: "Var olan HWID (Donanım) banını saniyeler içerisinde kalıcı olarak kaldıran temizleyici.", price: "₺250", link: "#" }
+                ]
+            },
+            "cs2": {
+                title: "CS2", desc: "Nixware, Fatality destekli profesyonel Lua eklentileri ve Prime Configler.",
+                img: "cs2.jpg",
+                cheats: [
+                    { name: "CS2 Legit Cheat", desc: "VAC-Live'ı tetiklemeyen, pürüzsüz legit Aimbot ve temiz ESP ayar dosyası.", price: "₺100", link: "#" },
+                    { name: "CS2 Rage Cheat", desc: "Mevlana sunucularında ping yemeyen, güçlü Anti-Aim ve min-damage hesaplayıcısı.", price: "₺120", link: "#" }
+                ]
+            },
+            "r6": {
+                title: "R6 SIEGE", desc: "Taktiksel üstünlük kurmanı sağlayan No-Recoil ve Operatör analiz arayüzü.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=R6+SIEGE",
+                cheats: [
+                    { name: "Akıllı No-Recoil", desc: "Silahı tanıyan ve tepmeyi fare hareketleriyle pürüzsüzce sıfırlayan akıllı makro.", price: "₺90", link: "#" },
+                    { name: "Operatör/Tuzak ESP", desc: "Kapkan, Frost tuzaklarını, C4'leri ve dronları belirginleştiren arkaplan okuyucusu.", price: "₺180", link: "#" },
+                    { name: "Silent Aim", desc: "Ekranı düşmana çevirmeden kurşunu doğrudan hedefe yönlendiren ileri düzey modül.", price: "₺300", link: "#" }
+                ]
+            },
+            "bf1": {
+                title: "BATTLEFIELD 1", desc: "64 kişilik büyük operasyonlarda dominasyon ve yüksek istatistik garantili yazılımlar.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=BATTLEFIELD+1",
+                cheats: [
+                    { name: "Sniper Prediction", desc: "Hedefin koşu hızını ve mermi düşme oranını hesaplayarak otomatik headshot atan bot.", price: "₺120", link: "#" },
+                    { name: "Piyade & Araç ESP", desc: "Düşmanları, boşta bekleyen tankları veya atları kilometrelerce öteden gösteren radar.", price: "₺80", link: "#" },
+                    { name: "Araç Aimbot (Vehicle Aim)", desc: "Bomber uçağında veya at üstündeyken kurşunlarından kurtuluş bırakmayan sistem.", price: "₺150", link: "#" }
+                ]
+            },
+            "fivem": {
+                title: "FIVEM", desc: "Roleplay sunucuları için ekonomi bozan trigger ateşleyiciler ve tam yetki menüleri.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=FIVEM",
+                cheats: [
+                    { name: "Eulen Executor Limitless", desc: "Girdiğin sunucuda dilediğin LUA scriptini çalıştırıp oyuna müdahale edebilme yetkisi.", price: "₺350", link: "#" },
+                    { name: "Global CFX Unban", desc: "Cfx.re (Eulen vs.) sunucularında yediğin tüm token/hwid banlarını iz bırakmadan siler.", price: "₺250", link: "#" },
+                    { name: "Mod Menu (Godmode&Para)", desc: "Roleplay kurallarını hiçe say: Görünmez ol, para bas, Noclip ile binalardan geç.", price: "₺100", link: "#" }
+                ]
+            },
+            "minecraft": {
+                title: "MINECRAFT", desc: "En popüler PvP sunucularına özel hazırlanmış, ekran kontrolünde dahi yakalanmayan Ghost/Blatant eklentileri.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=MINECRAFT",
+                cheats: [
+                    { name: "Vape V4 Stealth Config", desc: "SS (Screen Share) atıldığında asla bulunamayan, kendini RAM'den gizleyen modül.", price: "₺50", link: "#" },
+                    { name: "Reach Expander (4.2+)", desc: "Normal bir kılıcın vuruş mesafesini hissettirmeden 1 block fazla uzatarak avantaj sağlar.", price: "₺70", link: "#" },
+                    { name: "Fly, Scaffold & Velocity", desc: "Bedwars arenalarında geriye savrulmayı kapat, yere düşmeden saniyede 10 blok döşe.", price: "₺100", link: "#" }
+                ]
+            },
+            "craftrise": {
+                title: "CRAFTRISE", desc: "Türkiye'nin en aktif sunucusu ve RiseClient için özel optimize edilmiş koruma atlatıcılar.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=CRAFTRISE",
+                cheats: [
+                    { name: "Dynamic Hitbox", desc: "Hareket halindeki rakiplerin hitbox alanını genişleterek, her tıklamanın connects olmasını sağlar.", price: "₺80", link: "#" },
+                    { name: "Humanized AutoClicker", desc: "CPS'i sabit değil dalgalı tutarak Sunucu taraflı Click Checker ban sistemini tamamen atlatır.", price: "₺50", link: "#" },
+                    { name: "Zero Velocity & WTap", desc: "Ok veya Kılıç yediğinde Asla geriye sekmez, W-Tap makrosuyla kombo atmanı maksimize eder.", price: "₺60", link: "#" }
+                ]
+            },
+            "sonoyuncu": {
+                title: "SON OYUNCU", desc: "Titan Koruma Sisteminin altına gizlenen ve oyuna enjekte olan profesyonel kernel modülleri.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=SON+OYUNCU",
+                cheats: [
+                    { name: "Premium SO Executor", desc: "Görev yöneticisinde gizlenen, launcher arka planında pürüzsüz çalışan özel enjektör.", price: "₺120", link: "#" },
+                    { name: "S-Tap & Blockhit Script", desc: "Oyundaki en iyi PvP tekniğini senin yerine kusursuz zamanlamayla yapan kodlama.", price: "₺60", link: "#" },
+                    { name: "Chest & Player ESP", desc: "Hunger Games haritalarında rakiplerin zırh durumunu ve en dolu sandıkların X Işını görünümü.", price: "₺40", link: "#" }
+                ]
+            },
+            "mta": {
+                title: "MTA:SA", desc: "Klasik DM ve Freeroam sunucularında yetkileri ele geçiren dış destek scriptleri.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=MTA+SA",
+                cheats: [
+                    { name: "Resource Dumper v2", desc: "İçinde bulunduğun sunucunun Mapini, araçlarını ve özel mod dosyalarını saniyeler içinde çeker.", price: "₺150", link: "#" },
+                    { name: "Vehicle Godmode", desc: "Sürdüğün araba roket yese bile canı inmez, tekerleği patlamaz, admin komutu işlemez.", price: "₺50", link: "#" },
+                    { name: "Silent Aimbot (DM)", desc: "MTA'nın hitbox motoruna özel kodlanmış, ekran titretmeden silahı hedefe kilitleyen sistem.", price: "₺100", link: "#" }
+                ]
+            },
+            "gta5": {
+                title: "GTA 5 ONLINE", desc: "Rockstar Social Club taramalarını pasifize eden zenginlik ve güç mod menüleri.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=GTA+5+ONLINE",
+                cheats: [
+                    { name: "Recovery: 1B Para & Level", desc: "Ban riski olmadan Hesaba Banka Parası ve RP transferi sağlayan Recovery Injector.", price: "₺80", link: "#" },
+                    { name: "Troll Mod Menu", desc: "İstemediğin kişileri lobiden at, herkesin üstüne yanan uçak düşür ve ölümsüzlüğü aç.", price: "₺120", link: "#" },
+                    { name: "Casino Rig & Heist Editor", desc: "Casino slotlarından sürekli büyük ödül çıkar, Cayo Perico soygunlarında çanta değerini x100 yap.", price: "₺90", link: "#" }
+                ]
+            },
+            "zula": {
+                title: "ZULA", desc: "Oyun motoru güncellemelerine karşı %100 korumalı, rekabetçi seviyesinde gizlenen e-spor kodları.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=ZULA",
+                cheats: [
+                    { name: "Chams (Belli Etmeyen WH)", desc: "Adam sadece göründüğünde veya duvar köşesinden çıkacakken hafif parlama yapan legit ESP.", price: "₺150", link: "#" },
+                    { name: "Fast Reload & Switch", desc: "Herhangi bir silah çekme ve mermi değiştirme animasyonunu silip 2 kat hızlandıran mod.", price: "₺80", link: "#" },
+                    { name: "No Recoil & Spread", desc: "Zula'daki rastgele mermi dağılımını (Spread) ve silah tepmesini (Recoil) tamamen sıfırlar.", price: "₺100", link: "#" }
+                ]
+            },
+            "rust": {
+                title: "RUST", desc: "EAC (Easy Anti-Cheat) baypas edebilen efsanevi sprey ve hayatta kalma asistanları.",
+                img: "https://via.placeholder.com/600x400/181a20/76b900?text=RUST",
+                cheats: [
+                    { name: "AK/LR Profesyonel Script", desc: "Belleğe müdahale etmeden yalnızca fare hareketlerine komut gönderen 0 ban riskli sprey sihirbazı.", price: "₺150", link: "#" },
+                    { name: "Admin Warning & Spider", desc: "Gizli admin sana spectate attığında sesli uyarır. Duvarlara dilediğin gibi örümcek tırmanışı yapmanı sağlar.", price: "₺180", link: "#" },
+                    { name: "Stash & Base ESP", desc: "Yerin altına gizemiş çantaları kilometrelerce öteden tespit eder, düşman evinin zayıf noktalarını işaretler.", price: "₺200", link: "#" }
+                ]
+            }
+        };
+
+        const gameGrid = document.getElementById('game-grid');
+        for (const [key, game] of Object.entries(gamesData)) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => openGame(key);
+            card.innerHTML = `
+                <div class="card-img-wrapper">
+                    <div class="card-img-blur" style="background-image: url('${game.img}')"></div>
+                    <img src="${game.img}" alt="${game.title}" class="card-img" />
+                    <div class="card-img-overlay"></div>
+                </div>
+                <div class="card-body">
+                    <h3 class="game-title">${game.title}</h3>
+                    <p>${game.desc}</p>
+                    <div class="btn-view">HİLELERİ İNCELE</div>
+                </div>
+            `;
+            gameGrid.appendChild(card);
+        }
+
+        function openGame(gameKey) {
+            const game = gamesData[gameKey];
+            document.getElementById('main-section').style.display = 'none';
+            document.getElementById('details-section').style.display = 'block';
+            window.scrollTo(0, 0);
+            
+            document.getElementById('detail-title').innerText = game.title + " HİLELERİ";
+            
+            const container = document.getElementById('cheats-container');
+            container.innerHTML = ''; 
+            
+            game.cheats.forEach(cheat => {
+                // Eğer hilenin kendi özel fotoğrafı varsa onu kullan, yoksa ana oyun resmini kullan
+                const cheatImage = cheat.img ? cheat.img : game.img;
+
+                const cheatCard = document.createElement('div');
+                cheatCard.className = 'card'; // Ana oyun kartı CSS'ini kullanarak tamamen aynı estetiği yaratır
+                cheatCard.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <div class="card-img-blur" style="background-image: url('${cheatImage}')"></div>
+                        <img src="${cheatImage}" alt="${cheat.name}" class="card-img" />
+                        <div class="card-img-overlay"></div>
+                    </div>
+                    <div class="cheat-card-body">
+                        <div class="cheat-info">
+                            <h3>${cheat.name}</h3>
+                            <p>${cheat.desc}</p>
+                        </div>
+                        <div class="cheat-buy">
+                            <span class="cheat-price">${cheat.price}</span>
+                            <a href="${cheat.link}" target="_blank" class="btn-buy">SATIN AL</a>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cheatCard);
+            });
+        }
+
+        function goBack(e) {
+            if (e && document.getElementById('main-section').style.display !== 'none') return;
+            document.getElementById('details-section').style.display = 'none';
+            document.getElementById('main-section').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GİRİŞ / KAYIT | RTX SOFTWARE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-surface: rgba(18, 20, 24, 0.85);
+            --primary: #76b900;
+            --primary-hover: #8be500;
+            --text-main: #f0f0f5;
+            --text-muted: #8b92a5;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(118, 185, 0, 0.4);
+            --glow: rgba(118, 185, 0, 0.25);
+            --error: #ff4d4d;
+            --success: #76b900;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                linear-gradient(rgba(118, 185, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(118, 185, 0, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none; z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%; left: 50%; transform: translateX(-50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(118, 185, 0, 0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 5%;
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-light);
+            position: relative; z-index: 10;
+        }
+
+        .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 2px; color: #fff; text-decoration: none; }
+        .logo span { color: var(--primary); }
+        nav a { color: var(--text-muted); text-decoration: none; margin-left: 2rem; font-size: 0.95rem; font-weight: 500; transition: 0.2s; }
+        nav a:hover { color: var(--text-main); }
+
+        .auth-wrapper {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 4rem 1rem; position: relative; z-index: 1;
+        }
+
+        .auth-box {
+            width: 100%; max-width: 440px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 40px rgba(118,185,0,0.05);
+            overflow: hidden;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .tab-btn {
+            flex: 1; padding: 1.1rem;
+            background: transparent; border: none;
+            color: var(--text-muted); font-size: 0.95rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .tab-btn:hover:not(.active) { color: var(--text-main); }
+
+        .tab-content { padding: 2.5rem; }
+
+        .form-panel { display: none; }
+        .form-panel.active { display: block; }
+
+        .form-group { margin-bottom: 1.2rem; }
+
+        label {
+            display: block; margin-bottom: 0.5rem;
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            letter-spacing: 0.5px; text-transform: uppercase;
+        }
+
+        input {
+            width: 100%; padding: 0.85rem 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-light);
+            border-radius: 8px; color: var(--text-main);
+            font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            transition: 0.3s; outline: none;
+        }
+
+        input:focus {
+            border-color: var(--border-accent);
+            background: rgba(118, 185, 0, 0.05);
+            box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.1);
+        }
+
+        input::placeholder { color: rgba(139,146,165,0.5); }
+
+        .btn-submit {
+            width: 100%; padding: 0.95rem;
+            background: var(--primary); color: #000;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s; margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 6px 25px var(--glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active { transform: translateY(0); }
+
+        .msg {
+            margin-top: 1rem; padding: 0.8rem 1rem;
+            border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+            display: none; text-align: center;
+        }
+
+        .msg.error { background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); color: var(--error); display: block; }
+        .msg.success { background: rgba(118,185,0,0.1); border: 1px solid rgba(118,185,0,0.3); color: var(--success); display: block; }
+
+        .divider { text-align: center; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.8rem; position: relative; }
+        .divider::before, .divider::after {
+            content: ''; position: absolute; top: 50%; width: 42%; height: 1px;
+            background: var(--border-light);
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .already-logged {
+            text-align: center; padding: 2.5rem;
+        }
+
+        .already-logged h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .already-logged p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+        .btn-outline {
+            display: inline-block; padding: 0.7rem 1.5rem;
+            border: 1px solid var(--border-accent); border-radius: 8px;
+            color: var(--primary); font-weight: 600; font-size: 0.9rem;
+            text-decoration: none; transition: 0.3s; cursor: pointer;
+            background: transparent;
+        }
+
+        .btn-outline:hover { background: rgba(118,185,0,0.1); }
+
+        footer {
+            text-align: center; padding: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            background: rgba(10,10,12,0.5);
+            color: var(--text-muted); font-size: 0.85rem;
+            position: relative; z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">RTX<span>SOFTWARE</span></a>
+        <nav>
+            <a href="index.html">Ana Sayfa</a>
+            <a href="store.html">Mağaza</a>
+        </nav>
+    </header>
+
+    <div class="auth-wrapper">
+        <div class="auth-box" id="auth-box">
+            <!-- Giriş yapılmamışsa -->
+            <div id="tab-header" class="tab-header">
+                <button class="tab-btn active" id="tab-giris" onclick="switchTab('giris')">Giriş Yap</button>
+                <button class="tab-btn" id="tab-kayit" onclick="switchTab('kayit')">Kayıt Ol</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- GİRİŞ FORMU -->
+                <div class="form-panel active" id="panel-giris">
+                    <div class="form-group">
+                        <label for="login-user">Kullanıcı Adı</label>
+                        <input type="text" id="login-user" placeholder="kullanıcı adınız" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-pass">Şifre</label>
+                        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                    <button class="btn-submit" onclick="doLogin()">Giriş Yap</button>
+                    <div class="msg" id="msg-giris"></div>
+                </div>
+
+                <!-- KAYIT FORMU -->
+                <div class="form-panel" id="panel-kayit">
+                    <div class="form-group">
+                        <label for="reg-user">Kullanıcı Adı</label>
+                        <input type="text" id="reg-user" placeholder="kullanıcı adı seçin" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">E-Posta</label>
+                        <input type="email" id="reg-email" placeholder="ornek@mail.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-pass">Şifre</label>
+                        <input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-pass2">Şifre Tekrar</label>
+                        <input type="password" id="reg-pass2" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                    <button class="btn-submit" onclick="doRegister()">Kayıt Ol</button>
+                    <div class="msg" id="msg-kayit"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zaten giriş yapmışsa göster -->
+        <div class="auth-box" id="logged-box" style="display:none;">
+            <div class="already-logged">
+                <h3>✅ Hoş Geldin, <span id="logged-name" style="color:var(--primary)"></span>!</h3>
+                <p>Zaten giriş yapmış durumdasın.</p>
+                <a href="store.html" class="btn-outline" style="margin-right:0.5rem">Mağazaya Git</a>
+                <button class="btn-outline" onclick="doLogout()" style="margin-left:0.5rem">Çıkış Yap</button>
+            </div>
+        </div>
+    </div>
+
+    <footer><p>© 2026 RTX Software. Tüm hakları saklıdır.</p></footer>
+
+    <script>
+        // LocalStorage tabanlı basit kullanıcı sistemi
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('rtx_users') || '[]');
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('rtx_users', JSON.stringify(users));
+        }
+
+        function setSession(user) {
+            localStorage.setItem('rtx_session', JSON.stringify({ username: user.username, email: user.email }));
+        }
+
+        function getSession() {
+            return JSON.parse(localStorage.getItem('rtx_session') || 'null');
+        }
+
+        function checkLoggedIn() {
+            const session = getSession();
+            if (session) {
+                document.getElementById('auth-box').style.display = 'none';
+                document.getElementById('logged-box').style.display = 'block';
+                document.getElementById('logged-name').textContent = session.username;
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('panel-giris').classList.toggle('active', tab === 'giris');
+            document.getElementById('panel-kayit').classList.toggle('active', tab === 'kayit');
+            document.getElementById('tab-giris').classList.toggle('active', tab === 'giris');
+            document.getElementById('tab-kayit').classList.toggle('active', tab === 'kayit');
+            clearMsgs();
+        }
+
+        function clearMsgs() {
+            ['msg-giris', 'msg-kayit'].forEach(id => {
+                const el = document.getElementById(id);
+                el.className = 'msg'; el.textContent = '';
+            });
+        }
+
+        function showMsg(id, text, type) {
+            const el = document.getElementById(id);
+            el.textContent = text;
+            el.className = 'msg ' + type;
+        }
+
+        function doLogin() {
+            const username = document.getElementById('login-user').value.trim();
+            const password = document.getElementById('login-pass').value;
+
+            if (!username || !password) return showMsg('msg-giris', 'Tüm alanları doldurun.', 'error');
+
+            const users = getUsers();
+            const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+            if (!user) return showMsg('msg-giris', 'Kullanıcı adı veya şifre hatalı.', 'error');
+
+            setSession(user);
+            showMsg('msg-giris', 'Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => { window.location.href = 'store.html'; }, 1000);
+        }
+
+        function doRegister() {
+            const username = document.getElementById('reg-user').value.trim();
+            const email    = document.getElementById('reg-email').value.trim();
+            const pass     = document.getElementById('reg-pass').value;
+            const pass2    = document.getElementById('reg-pass2').value;
+
+            if (!username || !email || !pass || !pass2)
+                return showMsg('msg-kayit', 'Tüm alanları doldurun.', 'error');
+
+            if (username.length < 3)
+                return showMsg('msg-kayit', 'Kullanıcı adı en az 3 karakter olmalı.', 'error');
+
+            if (pass.length < 6)
+                return showMsg('msg-kayit', 'Şifre en az 6 karakter olmalı.', 'error');
+
+            if (pass !== pass2)
+                return showMsg('msg-kayit', 'Şifreler eşleşmiyor.', 'error');
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email))
+                return showMsg('msg-kayit', 'Geçerli bir e-posta adresi girin.', 'error');
+
+            const users = getUsers();
+            if (users.find(u => u.username.toLowerCase() === username.toLowerCase()))
+                return showMsg('msg-kayit', 'Bu kullanıcı adı zaten alınmış.', 'error');
+
+            if (users.find(u => u.email.toLowerCase() === email.toLowerCase()))
+                return showMsg('msg-kayit', 'Bu e-posta zaten kayıtlı.', 'error');
+
+            const newUser = {
+                id: Date.now(),
+                username,
+                email,
+                password: pass,
+                registeredAt: new Date().toLocaleString('tr-TR')
+            };
+
+            users.push(newUser);
+            saveUsers(users);
+            setSession(newUser);
+
+            showMsg('msg-kayit', 'Kayıt başarılı! Yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => { window.location.href = 'store.html'; }, 1000);
+        }
+
+        function doLogout() {
+            localStorage.removeItem('rtx_session');
+            location.reload();
+        }
+
+        // Sayfa açıldığında kontrol et
+        checkLoggedIn();
+    </script>
+</body>
+</html>
