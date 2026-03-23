@@ -316,16 +316,30 @@
             el.className = 'msg ' + type;
         }
 
+        // Admin kimlik bilgileri (admin.html ile aynı olmalı)
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASS = 'rtxadmin123';
+
         function doLogin() {
             const username = document.getElementById('login-user').value.trim();
             const password = document.getElementById('login-pass').value;
 
             if (!username || !password) return showMsg('msg-giris', 'Tüm alanları doldurun.', 'error');
 
+            // Admin kontrolü
+            if (username === ADMIN_USER && password === ADMIN_PASS) {
+                showMsg('msg-giris', '👑 Admin girişi! Yönlendiriliyorsunuz...', 'success');
+                setTimeout(() => { window.location.href = 'admin.html?autologin=1'; }, 800);
+                return;
+            }
+
             const users = getUsers();
             const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
 
             if (!user) return showMsg('msg-giris', 'Kullanıcı adı veya şifre hatalı.', 'error');
+
+            // Ban kontrolü
+            if (user.banned) return showMsg('msg-giris', '🚫 Hesabınız banlandı: ' + (user.banReason || 'Kural ihlali'), 'error');
 
             setSession(user);
             showMsg('msg-giris', 'Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
